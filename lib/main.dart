@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -9,7 +10,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: Text('Determinador de Fase da Vida'),
+      title: ('Fase da Vida'),
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
@@ -28,34 +29,40 @@ class _MyHomePageState extends State<MyHomePage> {
   String resultado = '';
   String erro = '';
 
-  // Função para determinar a fase da vida
-  String determinarFaseDaVida(int idade) {
-    if (idade < 3) {
-      return "Infância";
-    } else if (idade >= 3 && idade <= 12) {
-      return "Pré-adolescência";
-    } else if (idade >= 13 && idade <= 19) {
-      return "Adolescência";
-    } else if (idade >= 20 && idade <= 35) {
-      return "Juventude";
-    } else if (idade >= 36 && idade <= 55) {
-      return "Meia-idade";
-    } else {
-      return "Terceira idade";
-    }
-  }
+ determinarFaseDaVida() {
+    double idade = double.parse(idadeController.text);
 
-  // Função para tratar o clique do botão
-  void _calcularFaseDaVida() {
+    if (idade <= 3) {
+      resultado = 'Infância';
+    } else if (idade <= 12) {
+      resultado = 'Pré-adolescência';
+    } else if (idade <= 19) {
+      resultvida = 'Adolescência';
+    } else if (idade <= 35) {
+      resultado = 'Juventude';
+    } else if (idade <= 55) {
+      resultado = 'Meia-idade';
+    } else if (idade <= 130) {
+      resultado = 'Terceira idade';
+    } else {
+      resultvida = 'Idade Iválida';
+    }
+
+  void calcularFaseDaVida() {
     setState(() {
       erro = '';
-      resultado = '';
-      int? idade = int.tryParse(controller.text);
-
-      if (idade == null || idade < 0) {
-        erro = 'Por favor, insira uma idade válida';
+      String input = controller.text.trim();
+      if (input.isEmpty) {
+        erro = 'Por favor, insira sua idade';
+        resultado = '';
       } else {
-        resultado = determinarFaseDaVida(idade);
+        int idade = int.parse(input);
+        if (idade > 116) {
+          erro = 'A idade máxima permitida é 116 anos';
+          resultado = '';
+        } else {
+          determinarFaseDaVida(idade);
+        }
       }
     });
   }
@@ -63,41 +70,49 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Determinador de Fase da Vida'),
-      ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              TextField(
-                controller: controller,
-                decoration: InputDecoration(
-                  labelText: 'Digite sua idade',
-                  errorText: erro.isEmpty ? null : erro,
-                ),
-                keyboardType: TextInputType.number,
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _calcularFaseDaVida,
-                child: const Text('Calcular Fase da Vida'),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                resultado,
-                style: const TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ),
+        appBar: AppBar(
+          title: const Text("Fase da Vida",
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+          centerTitle: true,
         ),
-      ),
-    );
+        body: Center(
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: 300), // Largura máxima de 300
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                      controller: controller,
+                      decoration: InputDecoration(
+                        labelText: 'Digite sua idade',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                      onSubmitted: (value) => determinarFaseDaVida),
+                  const SizedBox(height: 6),
+                  ElevatedButton(
+                    onPressed: calcularFaseDaVida,
+                    child: const Text('Calcular Fase da Vida'),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    resultado,
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ));
   }
 }
